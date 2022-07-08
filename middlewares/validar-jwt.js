@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const validarJWT = (req,res,next) => {
 
     const token = req.header('x-token');
-    console.log(token)
+
 
     if (!token){
         return res.status(401).json({
@@ -20,7 +20,7 @@ const validarJWT = (req,res,next) => {
 
         next();
     }catch(err){
-        return res.status(401)-json({
+        return res.status(401).json({
             success: false,
             msg: 'Token inválido'
         });

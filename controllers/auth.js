@@ -3,11 +3,64 @@ const { generarJWT } = require("../helpers/jwt");
 const { response } = require("express");
 const bcrypt = require('bcryptjs');
 const Usuario = require("../models/usuario");
+const Policia = require("../models/policia");
 
 const creatUsuario = async (req,res = response) => {
 
-    const { numeroID, password } = req.body;
+    const { numeroID, password, email } = req.body;
 
+    try{
+
+        const existeNumeroID = await Usuario.findOne({numeroID});
+        const existeEmail = await Usuario.findOne({email});
+        if (existeNumeroID){
+            return res.status(400).json({
+                success: false,
+                msg: 'El usuario ya está registrado en el sistemaaa'
+            });
+        }
+        if (existeEmail){
+            return res.status(400).json({
+                success: false,
+                msg: 'El usuario (email) ya está registrado en el sistemaaa'
+            });
+        }
+
+        const usuario = new Usuario( req.body );
+    
+        //Encriptar contraseña
+        const salt = bcrypt.genSaltSync();
+        usuario.password = bcrypt.hashSync( password, salt );
+
+        await usuario.save();
+    
+     //   GENERA JWT
+
+        const token = await generarJWT(usuario._id);
+
+        
+
+        res.json({
+            success: true,
+            usuario,
+            token
+        });
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            msg: "Por favor hable con el administrador"
+        })
+    }
+
+
+}
+
+const crearPolicia = async (req,res = response) => {
+
+    const { numeroID, password } = req.body;
+    console.log('resbnoy',req.body);
     try{
 
         const existeNumeroID = await Usuario.findOne({numeroID});
@@ -19,23 +72,25 @@ const creatUsuario = async (req,res = response) => {
             });
         }
 
-        const usuario = new Usuario( req.body )
+        //TODO Verificar que sea policia
+
+        const policia = new Policia( req.body );
     
         //Encriptar contraseña
         const salt = bcrypt.genSaltSync();
-        usuario.password = bcrypt.hashSync( password, salt );
+        policia.password = bcrypt.hashSync( password, salt );
 
-        await usuario.save();
+        await policia.save();
     
         //GENERA JWT
 
-        const token = await generarJWT(usuario._id);
+        const token = await generarJWT(policia._id);
 
         
 
         res.json({
             success: true,
-            msg: usuario,
+            policia,
             token
         });
 
@@ -62,6 +117,7 @@ const login = async (req,res = response) => {
             return res.status(400).json({
                 success: false,
                 msg: 'El usuario no está registrado en el sistema'
+
             });
         }
 
@@ -79,8 +135,9 @@ const login = async (req,res = response) => {
         //GENERA JWT
         const token = await generarJWT( usuarioDB._id );
 
-        res.json({
+        return res.json({
             success: true,
+            msg: 'Se ha auntenticado correctamente',
             usuario: usuarioDB,
             token
         });
@@ -90,6 +147,7 @@ const login = async (req,res = response) => {
         res.status(500).json({
             success: false,
             msg: "Por favor hable con el administrador"
+
         })
     }
 
@@ -103,11 +161,40 @@ const renewToken = async(req,res = response) => {
     const token = await generarJWT(uid);
 
     const usuario = await Usuario.findById(uid);
+    console.log("jasd",usuario);
 
-    res.json({
+    if(usuario){
+        res.json({
+            success: true,
+            usuario: usuario,
+            token
+        });
+    }else{
+        const policia = await Policia.findById(uid);
+        console.log("jasd",policia);
+        res.json({
+            success: true,
+            policia: policia,
+            token
+        });
+    }
+
+}
+
+const getUsuarios = async (req, res = response) => {
+
+    const desde = Number (req.query.desde) || 0;
+
+    const usuarios = await Usuario
+        .find({ _id: { $ne: req.uid} })
+        .sort('-online').
+        skip(desde)
+        .limit(20); //Llamar usuario y ordenarlo por online de manera descendiente;
+    
+ 
+    return res.status(200).json({
         success: true,
-        usuario: usuario,
-        token
+        usuarios
     });
 }
 
@@ -115,5 +202,7 @@ const renewToken = async(req,res = response) => {
 module.exports = {
     creatUsuario,
     login,
-    renewToken
+    renewToken,
+    getUsuarios,
+    crearPolicia
 }

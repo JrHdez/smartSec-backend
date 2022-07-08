@@ -4,7 +4,9 @@ const dbConnection = async() => {
 
     try{
         
-        mongoose.connect( process.env.DB_CNN);
+        mongoose.connect( process.env.DB_CNN,{
+            autoIndex: true
+        });
         console.log('DB Online');
 
     }catch(error){
