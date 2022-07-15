@@ -37,6 +37,6 @@ router.post('/',[
 router.get('/renew',[validarJWT],renewToken);
 
 router.post('/notification',enviarNotificacion);
-router.get('/getUsers',[validarJWT],getUsuarios);
+router.get('/getChats',[validarJWT],getUsuarios);
 
  module.exports = router

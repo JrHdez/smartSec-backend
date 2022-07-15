@@ -2,9 +2,14 @@ const {io} = require('../index')
 
 const { usuarioConectado, usuarioDesconectado, grabarMensaje } = require('../controllers/socket');
 const { comprobarJWT } = require('../helpers/jwt');
+const Alertas = require('../models/alertas');
+const Alerta = require('../models/alerta');
+
+const alertas = new Alertas();
+
 
 //Mensajes de sockets
-io.on('connection',  client => {
+io.on('connection', async (client) => {
 
     console.log('Cliente connected');
     //verificar autenticacion
@@ -13,11 +18,14 @@ io.on('connection',  client => {
     console.log('Cliente autenticado');
 
     //Cliente autenticado
-    usuarioConectado(uid); //Set status to online
-
+    let isCop = await usuarioConectado(uid); //Set status to online
     //Ingresar al usuario a una sala (sockets) en particular
     //Sala global: Todos los dispositivos conectados, client.id, sala individual
-
+    if(isCop){
+        // console.log('soycop');
+        client.join('cop'); //Ingresas a sala donde recibira las alertas los policias
+    }
+    
     client.join(uid);
 
     // client.to(uid).emit('')
@@ -39,8 +47,18 @@ io.on('connection',  client => {
      });
 
      client.on('alerta', ( payload ) => {
-         console.log('Alerta    !!',payload);
-         io.emit('alerta',payload);
+        const alerta = new Alerta(payload.titulo,payload.subtitulo,payload.mensaje,payload.usuario,payload.longitude,payload.latitude,payload.senderUid);
+        alertas.addAlerta(alerta);
+        console.log('alerta mani',alerta)
+        //  io.emit('alerta',payload);
+        io.to( 'cop' ).emit('alerta', alertas.getAlertas());
+
+     });
+
+     client.on('delete-alerta', ( payload ) => {
+        alertas.deleteAlerta(payload);
+        io.to( 'cop' ).emit('alerta', alertas.getAlertas());
+
      });
 
     //  io.emit('mensaje',{ admin: 'Mensaje desde el server' });

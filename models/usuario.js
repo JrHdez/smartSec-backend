@@ -35,6 +35,9 @@ const UsuarioSchema = Schema({
         type: Boolean,
         default: false
     },
+    chatsUid:{
+        type: Array,
+    }
 
 });
 

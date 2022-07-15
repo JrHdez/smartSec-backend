@@ -12,6 +12,8 @@ const getCops = async (req, res = response) => {
         skip(desde)
         .limit(20); //Llamar usuario y ordenarlo por online de manera descendiente;
 
+    // const chatPoli = await Policia.findById
+
 
     return res.status(200).json({
         success: true,

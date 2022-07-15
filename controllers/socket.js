@@ -1,22 +1,41 @@
 const Usuario = require('../models/usuario');
 const Mensaje = require('../models/mensaje');
+const Policia = require('../models/policia');
 
 const usuarioConectado = async (uid = '') => {
 
+    // console.log('conectadin',uid);
+
     const usuario = await Usuario.findById(uid);
-    usuario.online = true;
+    const policia = await Policia.findById(uid);
+    if (usuario){
+        usuario.online = true;
+        await usuario.save();
+        return false; //No es policia
+    }else{
+        policia.online = true;
+        await policia.save();
+        return true; //Es policia
+    }
 
-    await usuario.save();
+   
 
-    return usuario;
+    // return usuario;
 }
 
 const usuarioDesconectado = async (uid = '') => {
 
     const usuario = await Usuario.findById(uid);
-    usuario.online = false;
+    const policia = await Policia.findById(uid);
 
-    await usuario.save();
+    if (usuario){
+      usuario.online = false;
+      await usuario.save();
+    }else{
+       policia.online = false;
+       await policia.save();
+    }
+
 
     return usuario;
 }

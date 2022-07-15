@@ -1,6 +1,6 @@
 const { Schema, model} = require('mongoose')
 
-const PoliciaSchema = Schema({
+const UsuarionuevoSchema = Schema({
 
     nombres: {
         type: String,
@@ -14,11 +14,6 @@ const PoliciaSchema = Schema({
         type: String,
     },
     numeroID: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    placaID: {
         type: String,
         required: true,
         unique: true
@@ -41,15 +36,15 @@ const PoliciaSchema = Schema({
         default: false
     },
     chatsUid:{
-        type: Array,
+        type: Object,
     }
 
 });
 
-PoliciaSchema.method('toJSON',function(){
+UsuarioSchema.method('toJSON',function(){
     const { __v, _id, password, ...object } = this.toObject();
     object.uid = _id;
     return object;
 });
 
-module.exports = model('Policia',PoliciaSchema);
+module.exports = model('Usuarionuevo',UsuarionuevoSchema);
