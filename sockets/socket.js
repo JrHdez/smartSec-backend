@@ -22,7 +22,7 @@ io.on('connection', async (client) => {
     //Ingresar al usuario a una sala (sockets) en particular
     //Sala global: Todos los dispositivos conectados, client.id, sala individual
     if(isCop){
-        // console.log('soycop');
+        console.log('soycop');
         client.join('cop'); //Ingresas a sala donde recibira las alertas los policias
     }
     
@@ -47,11 +47,13 @@ io.on('connection', async (client) => {
      });
 
      client.on('alerta', ( payload ) => {
+
         const alerta = new Alerta(payload.titulo,payload.subtitulo,payload.mensaje,payload.usuario,payload.longitude,payload.latitude,payload.senderUid);
         alertas.addAlerta(alerta);
-        console.log('alerta mani',alerta)
+
         //  io.emit('alerta',payload);
         io.to( 'cop' ).emit('alerta', alertas.getAlertas());
+        // io.emit('alerta', alertas.getAlertas());
 
      });
 

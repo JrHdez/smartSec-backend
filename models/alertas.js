@@ -10,6 +10,7 @@ class Alertas {
 
     addAlerta ( alerta = new Alerta() ){
         this.alertas.push(alerta);
+        console.log('LAS ALERTAS SERVER',this.alertas);
     }
 
     getAlertas(){
