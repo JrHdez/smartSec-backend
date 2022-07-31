@@ -14,7 +14,7 @@ io.on('connection', async (client) => {
     console.log('Cliente connected');
     //verificar autenticacion
     const [valido, uid] = comprobarJWT(client.handshake.headers['x-token']);
-    if (!valido){return client.disconnect();}
+    if (!valido){console.log('cliente desconectado'); return client.disconnect();}
     console.log('Cliente autenticado');
 
     //Cliente autenticado

@@ -19,7 +19,11 @@ app.use(express.json());
 
 //NOde server
 const server = require('http').createServer(app);
-module.exports.io = require('socket.io')(server);
+module.exports.io = require('socket.io')(server, {
+    cors: {
+        origin: "*"
+    }
+});
 require('./sockets/socket')
 
 
